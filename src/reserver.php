@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../bootstrap.php';
+use zenhealth\models\Reservation;
 
 use Illuminate\Database\Capsule\Manager as DB;
 use zenhealth\models\Cabine;

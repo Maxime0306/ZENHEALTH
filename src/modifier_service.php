@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['numserv'])) {
         DB::transaction(function () {
             $service = Service::findOrFail($_POST['numserv']);
             
-            $service->prix = $_POST['prix'];
+            $service->prixunit = $_POST['prixunit'];
             $service->nbrinterventions = $_POST['nbrinterventions'];
             
             $service->save();

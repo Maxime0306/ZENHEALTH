@@ -7,6 +7,16 @@ class Reservation extends Model {
     protected $primaryKey = 'numres';
     public $timestamps = false;
 
+    protected $fillable = [
+        'numres', 
+        'numcab', 
+        'datres', 
+        'nbpers', 
+        'datpaie', 
+        'modpaie', 
+        'montcom' // Note : utilise 'montcom' car c'est le nom dans ton SQL [cite: 14]
+    ];
+
     public function cabine() {
         return $this->belongsTo(Cabine::class, 'numcab');
     }

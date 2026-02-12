@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_service'], $_POST[
 }
 
 $services = Service::where('nbrinterventions', '>', 0)->get();
-$reservations = Reservation::whereNull('datres')->get();
+$reservations = Reservation::whereNull('datpaie')->get();
 ?>
 
 <!DOCTYPE html>
@@ -60,19 +60,21 @@ $reservations = Reservation::whereNull('datres')->get();
     <form method="POST">
         <label>Choisir la réservation :</label>
         <select name="id_reservation" required>
-            <?php foreach ($reservations as $res): ?>
-                <option value="<?= $res->id ?>">Résa n°<?= $res->id ?> (Cabine <?= $res->numcab ?>)</option>
-            <?php endforeach; ?>
-        </select>
+    <?php foreach ($reservations as $res): ?>
+        <option value="<?= $res->numres ?>">
+            Résa n°<?= $res->numres ?> (Cabine <?= $res->numcab ?> le <?= $res->datres ?>)
+        </option>
+    <?php endforeach; ?>
+</select>
 
-        <br><br>
-
-        <label>Choisir le service à ajouter :</label>
-        <select name="id_service" required>
-            <?php foreach ($services as $serv): ?>
-                <option value="<?= $serv->id ?>"><?= $serv->libelle ?> - <?= $serv->prix ?>€ (Restant : <?= $serv->nbrinterventions ?>)</option>
-            <?php endforeach; ?>
-        </select>
+<label>Choisir le service :</label>
+<select name="id_service" required>
+    <?php foreach ($services as $serv): ?>
+        <option value="<?= $serv->numserv ?>">
+            <?= $serv->libelle ?> - <?= $serv->prixunit ?>€ (Restant : <?= $serv->nbrinterventions ?>)
+        </option>
+    <?php endforeach; ?>
+</select>
 
         <br><br>
         <button type="submit">Ajouter à la commande</button>

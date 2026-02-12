@@ -64,7 +64,7 @@ $reservations = Reservation::whereNull('datpaie')->get();
             <br><br>
 
             <label>Mode de paiement :</label>
-            <select name="mode_paiement" required>
+            <select name="modpaie" required>
                 <option value="Carte Bancaire">Carte Bancaire</option>
                 <option value="Espèces">Espèces</option>
                 <option value="Chèque">Chèque</option>

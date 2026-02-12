@@ -19,19 +19,19 @@ if (!isset($_SESSION['numhot']) || $_SESSION['grade'] !== 'gestionnaire') {
 
 $message = "";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_reservation'])) {
-    $idResa = $_POST['id_reservation'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['numres'])) {
+    $idResa = $_POST['numres'];
 
     try {
         DB::transaction(function () use ($idResa) {
             $reservation = Reservation::with('services')->findOrFail($idResa);
 
-            if ($reservation->datres !== null) {
+            if ($reservation->datpaie !== null) {
                 throw new \Exception("Impossible d'annuler une réservation déjà encaissée.");
             }
 
             foreach ($reservation->services as $service) {
-                $service->increment('nb_interventions_jour');
+                $service->increment('nbrinterventions');
             }
 
             $reservation->services()->detach();
@@ -63,10 +63,10 @@ $reservations = Reservation::whereNull('datpaie')->get();
     <?php else: ?>
         <form method="POST">
             <label>Sélectionner la réservation à annuler :</label>
-            <select name="id_reservation" required>
+            <select name="numres" required>
                 <?php foreach ($reservations as $res): ?>
-                    <option value="<?= $res->id ?>">
-                        Résa n°<?= $res->id ?> - Cabine <?= $res->numcab ?> 
+                    <option value="<?= $res->numres ?>">
+                        Résa n°<?= $res->numres ?> - Cabine <?= $res->numcab ?> 
                         (Prévue le <?= $res->datres ?>)
                     </option>
                 <?php endforeach; ?>
