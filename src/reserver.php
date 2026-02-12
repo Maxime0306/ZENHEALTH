@@ -20,33 +20,48 @@ if (!isset($_SESSION['numhot'])) {
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $lastRes = Reservation::max('numres');
-    $numres = $lastRes ? $lastRes + 1 : 100; 
-
     $numcab = (int) $_POST['numcab'];
     $nbpers = (int) $_POST['nbpers'];
     $datres = str_replace('T', ' ', $_POST['datres']) . ':00';
+    $dateJour = date('Y-m-d', strtotime($datres));
+    $numhot = $_SESSION['numhot'];
 
     DB::beginTransaction();
 
-    try {
+    try { 
+        $cabine = Cabine::findOrFail($numcab);
+        if ($nbpers > $cabine->nbplace) {
+            throw new Exception("Capacité insuffisante : cette cabine n'a que {$cabine->nbplace} places.");
+        }
+
+        $affectation = DB::table('affecter')
+            ->where('numcab', $numcab)
+            ->where('numhot', $numhot)
+            ->where('dataff', $dateJour)
+            ->first();
+
+        if (!$affectation) {
+            throw new Exception("Vous n'êtes pas affectée à la cabine $numcab pour la journée du $dateJour.");
+        }
+
         $existe = Reservation::where('numcab', $numcab)
             ->where('datres', $datres)
             ->first();
 
         if ($existe !== null) {
-            throw new Exception("Cette cabine est déjà réservée pour ce créneau.");
+            throw new Exception("Une cabine ne peut être réservée à plusieurs clients en même temps.");
         }
-
+        
+        $lastRes = Reservation::max('numres');
         $r = new Reservation();
-        $r->numres = $numres;
+        $r->numres = $lastRes ? $lastRes + 1 : 100; 
         $r->numcab = $numcab;
         $r->datres = $datres;
         $r->nbpers = $nbpers;
         $r->save();
 
         DB::commit();
-        $message = "Réservation n°$numres enregistrée avec succès.";
+        $message = "Réservation enregistrée avec succès.";
 
     } catch (\Exception $e) {
         DB::rollBack();
