@@ -1,146 +1,95 @@
-DROP TABLE affecter CASCADE CONSTRAINTS;
-DROP TABLE commande CASCADE CONSTRAINTS;
-DROP TABLE reservation CASCADE CONSTRAINTS;
-DROP TABLE hotesse CASCADE CONSTRAINTS;
-DROP TABLE service CASCADE CONSTRAINTS;
-DROP TABLE cabine CASCADE CONSTRAINTS;
+DROP TABLE IF EXISTS affecter;
+DROP TABLE IF EXISTS commande;
+DROP TABLE IF EXISTS reservation;
+DROP TABLE IF EXISTS hotesse;
+DROP TABLE IF EXISTS service;
+DROP TABLE IF EXISTS cabine;
 
 CREATE TABLE cabine (
-    numcab NUMBER(4),
-    nbplace NUMBER(2),
+    numcab INT(4),
+    nbplace INT(2),
     CONSTRAINT pk_cabine PRIMARY KEY (numcab)
 );
 
 CREATE TABLE service (
-    numserv NUMBER(4),
-    libelle VARCHAR2(40),
-    prixunit NUMBER(6,2),
-    nbrinterventions NUMBER(2), -- Stock dispo par jour
+    numserv INT(4),
+    libelle VARCHAR(40),
+    prixunit DECIMAL(6,2),
+    nbrinterventions INT(2),
     CONSTRAINT pk_service PRIMARY KEY (numserv)
 );
 
 CREATE TABLE hotesse (
-    numhot NUMBER(2),
-    email VARCHAR2(255),
-    passwd VARCHAR2(255),
-    nomserv VARCHAR2(25), -- Nom et Prénom
-    grade VARCHAR2(20),   -- 'hotesse' ou 'gestionnaire'
+    numhot INT(2),
+    email VARCHAR(255),
+    passwd VARCHAR(255),
+    nomserv VARCHAR(25),
+    grade VARCHAR(20),
     CONSTRAINT pk_hotesse PRIMARY KEY (numhot),
-    CONSTRAINT uk_email UNIQUE (email) -- Important pour le login !
+    CONSTRAINT uk_email UNIQUE (email)
 );
 
 CREATE TABLE reservation (
-    numres NUMBER(4),
-    numcab NUMBER(4),
-    datres DATE,
-    nbpers NUMBER(2),
-    datpaie DATE,
-    modpaie VARCHAR2(15),
-    montcom NUMBER(8,2),
+    numres INT(4),
+    numcab INT(4),
+    datres DATETIME,
+    nbpers INT(2),
+    datpaie DATETIME,
+    modpaie VARCHAR(15),
+    montcom DECIMAL(8,2),
     CONSTRAINT pk_reservation PRIMARY KEY (numres),
     CONSTRAINT fk_res_cabine FOREIGN KEY (numcab) REFERENCES cabine (numcab)
 );
 
 CREATE TABLE commande (
-    numres NUMBER(4),
-    numserv NUMBER(4),
-    nbrinterventions NUMBER(2),
+    numres INT(4),
+    numserv INT(4),
+    nbrinterventions INT(2),
     CONSTRAINT pk_commande PRIMARY KEY (numres, numserv),
     CONSTRAINT fk_com_res FOREIGN KEY (numres) REFERENCES reservation (numres),
     CONSTRAINT fk_com_serv FOREIGN KEY (numserv) REFERENCES service (numserv)
 );
 
 CREATE TABLE affecter (
-    numcab NUMBER(4),
+    numcab INT(4),
     dataff DATE,
-    numhot NUMBER(2),
+    numhot INT(2),
     CONSTRAINT pk_affecter PRIMARY KEY (numcab, dataff),
     CONSTRAINT fk_aff_cabine FOREIGN KEY (numcab) REFERENCES cabine (numcab),
     CONSTRAINT fk_aff_hot FOREIGN KEY (numhot) REFERENCES hotesse (numhot)
 );
 
+INSERT INTO cabine VALUES(10,4),(11,6),(12,8),(13,4),(14,6),(15,4),(16,4),(17,6),(18,2),(19,4);
 
--- Tuples de cabine
-insert into cabine values(10,4);
-insert into cabine values(11,6);
-insert into cabine values(12,8);
-insert into cabine values(13,4);
-insert into cabine values(14,6);
-insert into cabine values(15,4);
-insert into cabine values(16,4);
-insert into cabine values(17,6);
-insert into cabine values(18,2);
-insert into cabine values(19,4);
+INSERT INTO service VALUES(1,'soins visage',90,25),(2,'epilation',90,25),(3,'soins mains',90,35),
+(4,'soins pieds',90,62),(5,'massage classique',90,15),(6,'soins amincissants',90,21),
+(7,'soins fessiers',90,25),(8,'soins jambes',90,30),(9,'soins sourcils',90,58),
+(10,'manicure',90,42),(11,'massage asiatique',90,68),(12,'massage orientale',90,56),
+(13,'maquillage',90,15),(14,'sauna',90,18),(15,'soins pour cheveux',90,70),(16,'massage pour veterans',90,61);
 
--- Tuples de service
-insert into service values(1,'soins visage',90,25);
-insert into service values(2,'epilation',90,25);
-insert into service values(3,'soins mains',90,35);
-insert into service values(4,'soins pieds',90,62);
-insert into service values(5,'massage classique',90,15);
-insert into service values(6,'soins amincissants',90,21);
-insert into service values(7,'soins fessiers',90,25);
-insert into service values(8,'soins jambes',90,30);
-insert into service values(9,'soins sourcils',90,58);
-insert into service values(10,'manicure',90,42);
-insert into service values(11,'massage asiatique',90,68);
-insert into service values(12,'massage orientale',90,56);
-insert into service values(13,'maquillage',90,15);
-insert into service values(14,'sauna',90,18);
-insert into service values(15,'soins pour cheveux',90,70);
-insert into service values(16,'massage pour veterans',90,61);
+INSERT INTO hotesse VALUES(1,'user1@mail.com','$#;§èm$$$$$0','Tutus Peter','gestionnaire');
+INSERT INTO hotesse VALUES(2,'user2@mail.com','$xy#;§èm$$$$$1','Lilo Vito','hotesse');
+INSERT INTO hotesse VALUES(3,'user3@mail.com','$ab#;§èm$$$$$2','Don Carl','hotesse');
+INSERT INTO hotesse VALUES(4,'user4@mail.com','$cd#;§èm$$$$$3','Leo Jon','hotesse');
+INSERT INTO hotesse VALUES(5,'user5@mail.com','$mm#;§èm$$$$$4','Dean Geak','gestionnaire');
 
--- Tuples de hotesse
-insert into hotesse values(1,'user1@mail.com','$#;§èm$$$$$0','Tutus Peter','gestionnaire');
-insert into hotesse values(2,'user2@mail.com','$xy#;§èm$$$$$1','Lilo Vito','hotesse');
-insert into hotesse values(3,'user3@mail.com','$ab#;§èm$$$$$2','Don Carl','hotesse');
-insert into hotesse values(4,'user4@mail.com','$cd#;§èm$$$$$3','Leo Jon','hotesse');
-insert into hotesse values(5,'user5@mail.com','$mm#;§èm$$$$$4','Dean Geak','gestionnaire');
+INSERT INTO reservation VALUES(100,10,STR_TO_DATE('10/09/2021 19:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('10/09/2021 20:50','%d/%m/%Y %H:%i'),'Carte',null);
+INSERT INTO reservation VALUES(101,11,STR_TO_DATE('10/09/2021 20:00','%d/%m/%Y %H:%i'),4,STR_TO_DATE('10/09/2021 21:20','%d/%m/%Y %H:%i'),'Chèque',null);
+INSERT INTO reservation VALUES(102,17,STR_TO_DATE('10/09/2021 18:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('10/09/2021 20:55','%d/%m/%Y %H:%i'),'Carte',null);
+INSERT INTO reservation VALUES(103,12,STR_TO_DATE('10/09/2021 19:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('10/09/2021 21:10','%d/%m/%Y %H:%i'),'Espèces',null);
+INSERT INTO reservation VALUES(104,18,STR_TO_DATE('10/09/2021 19:00','%d/%m/%Y %H:%i'),1,STR_TO_DATE('10/09/2021 21:00','%d/%m/%Y %H:%i'),'Chèque',null);
+INSERT INTO reservation VALUES(105,10,STR_TO_DATE('10/09/2021 19:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('10/09/2021 20:45','%d/%m/%Y %H:%i'),'Carte',null);
+INSERT INTO reservation VALUES(106,14,STR_TO_DATE('11/10/2021 19:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('11/10/2021 22:45','%d/%m/%Y %H:%i'),'Carte',null);
 
--- Tuples de reservation
-insert into reservation values(100,10,to_date('10/09/2021 19:00','dd/mm/yyyy hh24:mi'),2,to_date('10/09/2021 20:50','dd/mm/yyyy hh24:mi'),'Carte',null);
-insert into reservation values(101,11,to_date('10/09/2021 20:00','dd/mm/yyyy hh24:mi'),4,to_date('10/09/2021 21:20','dd/mm/yyyy hh24:mi'),'Chèque',null);
-insert into reservation values(102,17,to_date('10/09/2021 18:00','dd/mm/yyyy hh24:mi'),2,to_date('10/09/2021 20:55','dd/mm/yyyy hh24:mi'),'Carte',null);
-insert into reservation values(103,12,to_date('10/09/2021 19:00','dd/mm/yyyy hh24:mi'),2,to_date('10/09/2021 21:10','dd/mm/yyyy hh24:mi'),'Espèces',null);
-insert into reservation values(104,18,to_date('10/09/2021 19:00','dd/mm/yyyy hh24:mi'),1,to_date('10/09/2021 21:00','dd/mm/yyyy hh24:mi'),'Chèque',null);
-insert into reservation values(105,10,to_date('10/09/2021 19:00','dd/mm/yyyy hh24:mi'),2,to_date('10/09/2021 20:45','dd/mm/yyyy hh24:mi'),'Carte',null);
-insert into reservation values(106,14,to_date('11/10/2021 19:00','dd/mm/yyyy hh24:mi'),2,to_date('11/10/2021 22:45','dd/mm/yyyy hh24:mi'),'Carte',null);
+INSERT INTO commande VALUES(100,4,2),(100,5,2),(100,13,1),(100,3,1),(101,7,2),(101,16,2),(101,12,2),(101,15,2),(101,2,2),(101,3,2),(102,1,2),(102,10,2),(102,14,2),(102,2,1),(102,3,1),(103,9,2),(103,14,2),(103,2,1),(103,3,1),(104,7,1),(104,11,1),(104,14,1),(104,3,1),(105,3,2),(106,3,2);
 
--- Tuples de commande
-insert into commande values(100,4,2);
-insert into commande values(100,5,2);
-insert into commande values(100,13,1);
-insert into commande values(100,3,1);
-insert into commande values(101,7,2);
-insert into commande values(101,16,2);
-insert into commande values(101,12,2);
-insert into commande values(101,15,2);
-insert into commande values(101,2,2);
-insert into commande values(101,3,2);
-insert into commande values(102,1,2);
-insert into commande values(102,10,2);
-insert into commande values(102,14,2);
-insert into commande values(102,2,1);
-insert into commande values(102,3,1);
-insert into commande values(103,9,2);
-insert into commande values(103,14,2);
-insert into commande values(103,2,1);
-insert into commande values(103,3,1);
-insert into commande values(104,7,1);
-insert into commande values(104,11,1);
-insert into commande values(104,14,1);
-insert into commande values(104,3,1);
-insert into commande values(105,3,2);
-insert into commande values(106,3,2);
-
--- Tuples de Affecter
-insert into affecter values(10,'10/09/2021',1);
-insert into affecter values(11,'10/09/2021',1);
-insert into affecter values(12,'10/09/2021',1);
-insert into affecter values(17,'10/09/2021',2);
-insert into affecter values(18,'10/09/2021',2);
-insert into affecter values(15,'10/09/2021',3);
-insert into affecter values(16,'10/09/2021',3);
-insert into affecter values(10,'11/09/2021',1);
+INSERT INTO affecter VALUES(10,'2021-09-10',1);
+INSERT INTO affecter VALUES(11,'2021-09-10',1);
+INSERT INTO affecter VALUES(12,'2021-09-10',1);
+INSERT INTO affecter VALUES(17,'2021-09-10',2);
+INSERT INTO affecter VALUES(18,'2021-09-10',2);
+INSERT INTO affecter VALUES(15,'2021-09-10',3);
+INSERT INTO affecter VALUES(16,'2021-09-10',3);
+INSERT INTO affecter VALUES(10,'2021-09-11',1);
 
 COMMIT;
