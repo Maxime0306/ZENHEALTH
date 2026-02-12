@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 use Illuminate\Database\Capsule\Manager as DB;
 use zenhealth\models\Reservation;
@@ -13,11 +14,6 @@ if (!isset($_SESSION['numhot']) || $_SESSION['grade'] !== 'gestionnaire') {
     header('Location: dashboard.php');
     exit;
 }
-
-$db = new DB();
-$db->addConnection(parse_ini_file('../src/conf/conf.ini'));
-$db->setAsGlobal();
-$db->bootEloquent();
 
 $message = "";
 

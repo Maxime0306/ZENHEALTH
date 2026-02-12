@@ -4,16 +4,12 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 use Illuminate\Database\Capsule\Manager as DB;
 use zenhealth\models\Hotesse;
 
 session_start();
-
-$db = new DB();
-$db->addConnection(parse_ini_file('src/conf/conf.ini'));
-$db->setAsGlobal();
-$db->bootEloquent();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];

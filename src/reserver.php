@@ -1,19 +1,29 @@
 <?php
-require_once __DIR__ . '/../bootstrap.php';
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
+
 use Illuminate\Database\Capsule\Manager as DB;
-use ZENHEALTH\models\Reservation;
+use zenhealth\models\Cabine;
+
+session_start();
+
+if (!isset($_SESSION['numhot'])) {
+    header('Location: index.php');
+    exit;
+}
 
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $lastRes = Reservation::max('numres');
+    $numres = $lastRes ? $lastRes + 1 : 100; 
 
-    $numres = (int) $_POST['numres'];
     $numcab = (int) $_POST['numcab'];
     $nbpers = (int) $_POST['nbpers'];
-
     $datres = str_replace('T', ' ', $_POST['datres']) . ':00';
 
     DB::beginTransaction();
@@ -24,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ->first();
 
         if ($existe !== null) {
-            throw new Exception("Cabine déjà réservée à ce créneau.");
+            throw new Exception("Cette cabine est déjà réservée pour ce créneau.");
         }
 
         $r = new Reservation();
@@ -32,39 +42,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $r->numcab = $numcab;
         $r->datres = $datres;
         $r->nbpers = $nbpers;
-        $r->datpaie = null;
-        $r->modpaie = null;
-        $r->montcom = null;
         $r->save();
 
         DB::commit();
-        $message = "Réservation enregistrée.";
+        $message = "Réservation n°$numres enregistrée avec succès.";
 
-    } catch (\Exception $e) { 
+    } catch (\Exception $e) {
         DB::rollBack();
-
-        echo "Type : " . get_class($e) . "<br>";
-        echo "Message : " . $e->getMessage();
+        $message = "Erreur : " . $e->getMessage();
     }
 }
+
+$cabines = Cabine::all();
 ?>
 
-<?php if ($message !== '') { ?>
-  <p><?= $message ?></p>
-<?php } ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Réserver - ZENHEALTH</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Réserver une cabine</h1>
+    <p><a href="dashboard.php">Retour au menu</a></p>
 
-<form method="post">
-  <label>Numéro réservation (numres)</label>
-  <input type="number" name="numres" required>
+    <?php if ($message): ?>
+        <p style="color: blue;"><strong><?= htmlspecialchars($message) ?></strong></p>
+    <?php endif; ?>
 
-  <label>Cabine (numcab)</label>
-  <input type="number" name="numcab" required>
+    <form method="post">
+        <label>Choisir une cabine :</label><br>
+        <select name="numcab" required>
+            <option value="">-- Sélectionner une cabine --</option>
+            <?php foreach ($cabines as $c): ?>
+                <option value="<?= $c->numcab ?>">
+                    Cabine n°<?= $c->numcab ?> (<?= $c->nbplace ?> places)
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <br><br>
 
-  <label>Date/heure (datres)</label>
-  <input type="datetime-local" name="datres" required>
+        <label>Date et heure :</label><br>
+        <input type="datetime-local" name="datres" required>
+        <br><br>
 
-  <label>Nombre de personnes (nbpers)</label>
-  <input type="number" name="nbpers" min="1" required>
+        <label>Nombre de personnes :</label><br>
+        <select name="nbpers" required>
+            <?php for($i=1; $i<=8; $i++): ?>
+                <option value="<?= $i ?>"><?= $i ?> personne(s)</option>
+            <?php endfor; ?>
+        </select>
+        <br><br>
 
-  <button type="submit">Réserver</button>
-</form>
+        <button type="submit">Confirmer la réservation</button>
+    </form>
+</body>
+</html>
