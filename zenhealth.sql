@@ -67,11 +67,11 @@ INSERT INTO service VALUES(1,'soins visage',90,25),(2,'epilation',90,25),(3,'soi
 (10,'manicure',90,42),(11,'massage asiatique',90,68),(12,'massage orientale',90,56),
 (13,'maquillage',90,15),(14,'sauna',90,18),(15,'soins pour cheveux',90,70),(16,'massage pour veterans',90,61);
 
-INSERT INTO hotesse VALUES(1,'user1@mail.com','$#;§èm$$$$$0','Tutus Peter','gestionnaire');
-INSERT INTO hotesse VALUES(2,'user2@mail.com','$xy#;§èm$$$$$1','Lilo Vito','hotesse');
-INSERT INTO hotesse VALUES(3,'user3@mail.com','$ab#;§èm$$$$$2','Don Carl','hotesse');
-INSERT INTO hotesse VALUES(4,'user4@mail.com','$cd#;§èm$$$$$3','Leo Jon','hotesse');
-INSERT INTO hotesse VALUES(5,'user5@mail.com','$mm#;§èm$$$$$4','Dean Geak','gestionnaire');
+INSERT INTO hotesse VALUES(1,'user1@mail.com','$2y$12$oKBIrShzKcNkAK6HGR/25uuOB/.jvdEy.IhO4220qaRhKajTyInkq','Tutus Peter','gestionnaire');
+INSERT INTO hotesse VALUES(2,'user2@mail.com','$2y$12$ND8LU2eOtoYNfDCugCS98e7L9pu5qLeQjJK1E3Y5SHni0Syj1.lk.','Lilo Vito','hotesse');
+INSERT INTO hotesse VALUES(3,'user3@mail.com','$2y$12$o2ea.TC8z2.WEgo0/pWq5.VxQpSsY8Y2uRBo0uJIkNBG4vGK3kBF6','Don Carl','hotesse');
+INSERT INTO hotesse VALUES(4,'user4@mail.com','$2y$12$QMKODaZtZQWn85HMhydC8ucunXQ/BeHGKevmDoPmFFSmTwWswj6OW','Leo Jon','hotesse');
+INSERT INTO hotesse VALUES(5,'user5@mail.com','$2y$12$ikq4E6Flt8yu4kQPC5COfO9Qi6noQGNWW/XpSHMIx7G3U1V10q6Sq','Dean Geak','gestionnaire');
 
 INSERT INTO reservation VALUES(100,10,STR_TO_DATE('10/09/2021 19:00','%d/%m/%Y %H:%i'),2,STR_TO_DATE('10/09/2021 20:50','%d/%m/%Y %H:%i'),'Carte',null);
 INSERT INTO reservation VALUES(101,11,STR_TO_DATE('10/09/2021 20:00','%d/%m/%Y %H:%i'),4,STR_TO_DATE('10/09/2021 21:20','%d/%m/%Y %H:%i'),'Chèque',null);
