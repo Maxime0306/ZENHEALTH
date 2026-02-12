@@ -26,16 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_service'], $_POST[
     try {
         DB::transaction(function () use ($idService, $idResa) {
             $service = Service::lockForUpdate()->find($idService);
-            if ($service->nbrinterventions > 0) {
-                $reservation = Reservation::findOrFail($idResa);
-                $reservation->services()->attach($idService);
-                $service->nbrinterventions -= 1;
+            $reservation = Reservation::findOrFail($idResa);
+            
+            $nbPersonnes = $reservation->nbpers;
+
+            if ($service->nbrinterventions >= $nbPersonnes) {
+                $reservation->services()->attach($idService, [
+                    'nbrinterventions' => $nbPersonnes
+                ]);
+                
+                $service->nbrinterventions -= $nbPersonnes;
                 $service->save();
             } else {
-                throw new \Exception("plus disponibles pour ce service");
+                throw new \Exception("Pas assez de disponibilités pour " . $nbPersonnes . " personnes.");
             }
         });
-        $message = "Service ajouté";
+        $message = "Commande enregistrée pour le groupe.";
     } catch (\Exception $e) {
         $message = "Erreur : " . $e->getMessage();
     }
@@ -71,7 +77,7 @@ $reservations = Reservation::whereNull('datpaie')->get();
 <select name="id_service" required>
     <?php foreach ($services as $serv): ?>
         <option value="<?= $serv->numserv ?>">
-            <?= $serv->libelle ?> - <?= $serv->prixunit ?>€ (Restant : <?= $serv->nbrinterventions ?>)
+            <?= $serv->libelle ?> (<?= $serv->prixunit ?>€ / pers.) - Restant : <?= $serv->nbrinterventions ?>
         </option>
     <?php endforeach; ?>
 </select>

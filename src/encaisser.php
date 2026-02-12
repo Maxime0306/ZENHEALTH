@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalCalcule = DB::transaction(function () use ($numres, $modePaiement) {
             $res = Reservation::with('services')->findOrFail($numres);
             
-            $total = $res->services->sum('prixunit');
+            $total = $res->services->reduce(function ($carry, $service) {return $carry + ($service->prixunit * $service->pivot->nbrinterventions);}, 0);
 
             $res->update([
                 'montcom' => $total,
