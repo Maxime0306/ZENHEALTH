@@ -11,7 +11,7 @@ class Reservation extends Model {
         return $this->belongsTo(Cabine::class, 'numcab');
     }
 
-    public function service() {
+    public function services() {
         return $this->BelongsToMany(Service::class,'commande','numres','numserv')
             ->withPivot('nbrinterventions');
     }
