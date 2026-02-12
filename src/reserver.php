@@ -14,13 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $numcab = (int) $_POST['numcab'];
     $nbpers = (int) $_POST['nbpers'];
 
-    // datetime-local -> "YYYY-MM-DDTHH:MM"  =>  "YYYY-MM-DD HH:MM:SS"
     $datres = str_replace('T', ' ', $_POST['datres']) . ':00';
 
     DB::beginTransaction();
 
     try {
-        // Vérifier disponibilité : même cabine + même date/heure
         $existe = Reservation::where('numcab', $numcab)
             ->where('datres', $datres)
             ->first();
@@ -29,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Cabine déjà réservée à ce créneau.");
         }
 
-        // Créer la réservation
         $r = new Reservation();
         $r->numres = $numres;
         $r->numcab = $numcab;
