@@ -19,17 +19,27 @@ $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $numres = $_POST['numres'];
+    $modePaiement = $_POST['modpaie'];
     
-    DB::transaction(function () use ($numres) {
-        $res = Reservation::with('services')->findOrFail($numres);
-        $total = $res->services->sum('prixunit');
+    try { 
+        $totalCalcule = DB::transaction(function () use ($numres, $modePaiement) {
+            $res = Reservation::with('services')->findOrFail($numres);
+            
+            $total = $res->services->sum('prixunit');
 
-        $res->update([
-            'montant_total' => $total,
-            'datpaie' => date('Y-m-d H:i:s'),
-            'modpaie' => $_POST['modpaie']
-        ]);
-    });
+            $res->update([
+                'montcom' => $total,
+                'datpaie' => date('Y-m-d H:i:s'),
+                'modpaie' => $modePaiement
+            ]);
+            
+            return $total;
+        });
+
+        $message = "Paiement effectué avec succès ! <br> Montant encaissé : <strong>" . number_format($totalCalcule, 2) . " €</strong>";
+    } catch (\Exception $e) {
+        $message = "Erreur lors de l'encaissement : " . $e->getMessage();
+    }
 }
 
 $reservations = Reservation::whereNull('datpaie')->get();
@@ -42,37 +52,42 @@ $reservations = Reservation::whereNull('datpaie')->get();
     <title>Encaissement - ZENHEALTH</title>
 </head>
 <body>
-    <h1>Gestionnaire : Encaisser une réservation</h1>
-    <p><a href="dashboard.php">Retour au menu</a></p>
+    <div class="container">
+        <h1>ZENHEALTH - Encaissement</h1>
+        <p><a href="dashboard.php">⬅ Retour au menu</a></p>
 
-    <?php if ($message) echo "<p style='color:blue; font-weight:bold;'>$message</p>"; ?>
+        <?php if ($message): ?>
+            <div>
+                <?= $message ?>
+            </div>
+        <?php endif; ?>
 
-    <?php if ($reservations->isEmpty()): ?>
-        <p>Aucune réservation en attente d'encaissement.</p>
-    <?php else: ?>
-        <form method="POST">
-            <label>Sélectionner la réservation terminée :</label>
-            <select name="numres" required>
-                <option value="">-- Choisir une réservation --</option>
-                <?php foreach ($reservations as $res): ?>
-                    <option value="<?= $res->numres ?>">
-                        Résa n°<?= $res->numres ?> (Cabine <?= $res->numcab ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <?php if ($reservations->isEmpty()): ?>
+            <p>Aucune réservation en attente d'encaissement.</p>
+        <?php else: ?>
+            <form method="POST">
+                <label>Sélectionner la réservation à solder :</label>
+                <select name="numres" required>
+                    <option value="">-- Choisir une réservation --</option>
+                    <?php foreach ($reservations as $res): ?>
+                        <option value="<?= $res->numres ?>">
+                            Résa n°<?= $res->numres ?> (Cabine <?= $res->numcab ?> - Client prévu le <?= $res->datres ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
-            <br><br>
+                <br>
 
-            <label>Mode de paiement :</label>
-            <select name="modpaie" required>
-                <option value="Carte Bancaire">Carte Bancaire</option>
-                <option value="Espèces">Espèces</option>
-                <option value="Chèque">Chèque</option>
-            </select>
+                <label>Mode de paiement:</label>
+                <select name="modpaie" required>
+                    <option value="Carte">Carte Bancaire</option>
+                    <option value="Espèces">Espèces</option>
+                    <option value="Chèque">Chèque</option>
+                </select>
 
-            <br><br>
-            <button type="submit">Calculer le total et Encaisser</button>
-        </form>
-    <?php endif; ?>
+                <button type="submit">Confirmer l'encaissement et calculer le total</button>
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
